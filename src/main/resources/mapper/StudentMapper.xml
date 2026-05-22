@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.slim.agent.mapper.StudentMapper">
+
+    <resultMap id="BaseResultMap" type="com.slim.agent.entity.Student">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="student_no" property="studentNo"/>
+        <result column="phone" property="phone"/>
+        <result column="password" property="password"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, student_no, phone, password, status, created_at
+    </sql>
+
+    <insert id="insert" parameterType="com.slim.agent.entity.Student" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO students (name, student_no, phone, password, status)
+        VALUES (#{name}, #{studentNo}, #{phone}, #{password}, #{status})
+    </insert>
+
+    <update id="updateById" parameterType="com.slim.agent.entity.Student">
+        UPDATE students
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="studentNo != null">student_no = #{studentNo},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM students WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM students WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM students
+    </select>
+
+    <select id="selectByStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM students WHERE status = #{status}
+    </select>
+
+    <select id="selectByStudentNo" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM students WHERE student_no = #{studentNo}
+    </select>
+
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM students WHERE name = #{name}
+    </select>
+
+</mapper>

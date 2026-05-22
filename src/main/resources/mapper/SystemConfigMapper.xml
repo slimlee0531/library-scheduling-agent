@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.slim.agent.mapper.SystemConfigMapper">
+
+    <resultMap id="BaseResultMap" type="com.slim.agent.entity.SystemConfig">
+        <id column="id" property="id"/>
+        <result column="config_key" property="configKey"/>
+        <result column="config_value" property="configValue"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, config_key, config_value, description
+    </sql>
+
+    <insert id="insert" parameterType="com.slim.agent.entity.SystemConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO system_configs (config_key, config_value, description)
+        VALUES (#{configKey}, #{configValue}, #{description})
+    </insert>
+
+    <update id="updateById" parameterType="com.slim.agent.entity.SystemConfig">
+        UPDATE system_configs
+        <set>
+            <if test="configKey != null">config_key = #{configKey},</if>
+            <if test="configValue != null">config_value = #{configValue},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM system_configs WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM system_configs WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM system_configs
+    </select>
+
+    <select id="selectByConfigKey" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM system_configs WHERE config_key = #{configKey}
+    </select>
+
+</mapper>

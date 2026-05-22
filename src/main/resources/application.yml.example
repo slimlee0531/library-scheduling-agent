@@ -1,0 +1,142 @@
+# ============================================
+# 图书馆勤工助学智能排班系统配置文件
+# ============================================
+# 注意：此为模板文件，请复制为 application.yml 后填写实际值
+# 文件名：application.yml.example
+
+# ============================================
+# Spring Boot 基础配置
+# ============================================
+spring:
+  application:
+    name: library-scheduling-agent
+
+  # ============================================
+  # MySQL 数据源配置
+  # ============================================
+  datasource:
+    url: jdbc:mysql://localhost:3306/library_agent?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:your_password_here}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  # ============================================
+  # Redis 配置
+  # ============================================
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: -1ms
+
+# ============================================
+# MyBatis 配置
+# ============================================
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.slim.agent.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# ============================================
+# 服务器配置
+# ============================================
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# ============================================
+# LangChain4j AI Agent 配置（核心亮点）
+# ============================================
+langchain4j:
+  # Ollama 连接配置（DeepSeek-R1:7b）
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    timeout: 120s
+    connect-timeout: 30s
+    read-timeout: 120s
+
+# ============================================
+# 自定义业务配置
+# ============================================
+library:
+  # 排班配置
+  scheduling:
+    # 每人每周值班次数（从数据库读取）
+    weekly-shifts: 4
+    # 提前上班/下班缓冲时间（分钟）
+    buffer-minutes: 20
+    # 闭馆日（1=周一, 7=周日）
+    closed-weekday: 3
+    # 闭馆开始时间
+    closed-start: "16:00:00"
+    # 闭馆结束时间
+    closed-end: "18:00:00"
+
+  # OCR 配置
+  ocr:
+    # 是否启用OCR识别
+    enabled: true
+    # OCR模型路径（可选，默认使用内置模型）
+    model-path: ${OCR_MODEL_PATH:}
+
+  # AI 模型配置
+  ai:
+    # 模型名称
+    model-name: ${AI_MODEL_NAME:deepseek-r1:7b}
+    # 系统提示词文件路径
+    system-prompt-file: classpath:prompts/scheduling-system-prompt.txt
+    # 温度参数（创造性，0-1）
+    temperature: 0.7
+    # 最大Token数
+    max-tokens: 4096
+
+# ============================================
+# 日志配置
+# ============================================
+logging:
+  level:
+    root: INFO
+    com.slim.agent: DEBUG
+    dev.langchain4j: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
+    max-size: 10MB
+    max-history: 30
+
+# ============================================
+# 文件上传配置
+# ============================================
+spring.servlet:
+  multipart:
+    enabled: true
+    max-file-size: 10MB
+    max-request-size: 20MB
+
+# ============================================
+# Actuator 健康检查配置
+# ============================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized

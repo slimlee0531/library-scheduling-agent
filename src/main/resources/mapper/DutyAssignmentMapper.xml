@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.slim.agent.mapper.DutyAssignmentMapper">
+
+    <resultMap id="BaseResultMap" type="com.slim.agent.entity.DutyAssignment">
+        <id column="id" property="id"/>
+        <result column="student_id" property="studentId"/>
+        <result column="student_name" property="studentName"/>
+        <result column="duty_date" property="dutyDate"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="week_num" property="weekNum"/>
+        <result column="is_early" property="isEarly"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, student_id, student_name, duty_date, start_time, end_time, week_num, is_early
+    </sql>
+
+    <insert id="insert" parameterType="com.slim.agent.entity.DutyAssignment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO duty_assignments (student_id, student_name, duty_date, start_time, end_time, week_num, is_early)
+        VALUES (#{studentId}, #{studentName}, #{dutyDate}, #{startTime}, #{endTime}, #{weekNum}, #{isEarly})
+    </insert>
+
+    <update id="updateById" parameterType="com.slim.agent.entity.DutyAssignment">
+        UPDATE duty_assignments
+        <set>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="studentName != null">student_name = #{studentName},</if>
+            <if test="dutyDate != null">duty_date = #{dutyDate},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="weekNum != null">week_num = #{weekNum},</if>
+            <if test="isEarly != null">is_early = #{isEarly},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM duty_assignments WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByWeekNum">
+        DELETE FROM duty_assignments WHERE week_num = #{weekNum}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM duty_assignments WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM duty_assignments
+    </select>
+
+    <select id="selectByDutyDateBetween" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM duty_assignments
+        WHERE duty_date BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <select id="selectByWeekNum" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM duty_assignments WHERE week_num = #{weekNum}
+    </select>
+
+    <select id="selectByStudentIdAndWeekNum" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM duty_assignments
+        WHERE student_id = #{studentId} AND week_num = #{weekNum}
+    </select>
+
+    <select id="selectByDutyDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM duty_assignments WHERE duty_date = #{dutyDate}
+    </select>
+
+</mapper>

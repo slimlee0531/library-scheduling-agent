@@ -71,7 +71,7 @@ day_of_week TINYINT NOT NULL COMMENT '1=周一 7=周日',
 period_number INT NOT NULL COMMENT '第几节课(关联course_periods表)',
 UNIQUE KEY uk_stu_course (student_id, day_of_week, period_number),
 FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-FOREIGN KEY (period_number) REFERENCES course_periods(id)
+FOREIGN KEY (period_number) REFERENCES course_periods(period_number)
 ) COMMENT '学生课表表';
 
 -- ==============================================

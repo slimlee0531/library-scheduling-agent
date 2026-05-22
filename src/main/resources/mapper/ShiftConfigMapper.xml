@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.slim.agent.mapper.ShiftConfigMapper">
+
+    <resultMap id="BaseResultMap" type="com.slim.agent.entity.ShiftConfig">
+        <id column="id" property="id"/>
+        <result column="day_type" property="dayType"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="min_stu" property="minStu"/>
+        <result column="max_stu" property="maxStu"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, day_type, start_time, end_time, min_stu, max_stu
+    </sql>
+
+    <insert id="insert" parameterType="com.slim.agent.entity.ShiftConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shift_configs (day_type, start_time, end_time, min_stu, max_stu)
+        VALUES (#{dayType}, #{startTime}, #{endTime}, #{minStu}, #{maxStu})
+    </insert>
+
+    <update id="updateById" parameterType="com.slim.agent.entity.ShiftConfig">
+        UPDATE shift_configs
+        <set>
+            <if test="dayType != null">day_type = #{dayType},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="minStu != null">min_stu = #{minStu},</if>
+            <if test="maxStu != null">max_stu = #{maxStu},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM shift_configs WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM shift_configs WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM shift_configs
+    </select>
+
+    <select id="selectByDayType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM shift_configs WHERE day_type = #{dayType}
+    </select>
+
+    <select id="selectByDayTypeOrderByStartTimeAsc" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM shift_configs
+        WHERE day_type = #{dayType} ORDER BY start_time ASC
+    </select>
+
+</mapper>

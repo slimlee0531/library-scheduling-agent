@@ -2,8 +2,9 @@
 ## 业务需求规格说明书 V1.0
 ### 文档说明
 - 适用场景：图书馆学生勤工助学自动排班
-- 核心技术：SpringBoot + LangChain4j + OCR + MySQL + Redis
-- 文档用途：开发唯一依据、需求固化、Agent开发规则参考
+- **核心技术栈**：SpringBoot 3.5 + LangChain4j 0.32 + RapidOCR-Java 0.0.7 + DeepSeek-R1:7b + MySQL 8.0 + Redis 7.0
+- **关键特性**：AI Agent驱动、Function Calling、OCR识别、贪心算法排班引擎
+- 文档用途：开发唯一依据、需求固化、Agent开发规则参考、简历展示项目
 
 ---
 
@@ -15,6 +16,7 @@
 5. **冲突禁止**：学生有课的时间段，禁止排班
 6. **通勤时间**：下节课有课的学生，当前时段只能提前20分钟下班
    - 例：学生10:00有课，8:00-10:00的标准时段只能安排到9:40-11:40
+
 ---
 
 ## 2. 分时段排班人数强制规则（核心）
@@ -62,3 +64,148 @@
 1. MySQL存储业务数据（学生、课表、排班、配置）
 2. Redis缓存配置/课表数据，提升性能
 3. 所有操作留日志，学生离职不删除历史数据
+
+---
+
+## 7. 技术实现要求（核心亮点 - Agent开发）
+
+### 7.1 课表OCR识别模块
+| 功能点 | 实现要求 | 状态 |
+|--------|---------|------|
+| 图片上传 | 支持JPG/PNG格式课表图片上传 | TODO |
+| OCR识别 | 使用RapidOCR-Java进行中文文本识别 | TODO |
+| 文本结构化 | 调用DeepSeek-R1:7b大模型将OCR原始文本转换为结构化课表数据 | TODO |
+| 信息提取 | 自动提取学生姓名、每周一到周五的课程安排 | TODO |
+| 空闲时间计算 | 根据课程表自动计算每个学生的空闲时间段 | TODO |
+| 数据存储 | 识别结果自动保存到student_courses表 | TODO |
+
+### 7.2 LangChain4j Agent模块（核心亮点）
+| 功能点 | 实现要求 | 状态 |
+|--------|---------|------|
+| Agent定义 | 基于LangChain4j的AiServices实现Function Calling Agent | TODO |
+| 工具类定义 | 创建ScheduleTools工具类 | TODO |
+| getAllStudents() | 获取所有在职学生列表 | TODO |
+| getStudentFreeTime(Long studentId) | 获取指定学生的空闲时间段 | TODO |
+| saveDutyAssignments(List) | 批量保存排班结果到数据库 | TODO |
+| 系统提示词 | 必须包含所有业务规则（硬约束+软约束） | TODO |
+| Agent工作流程 | 调用工具获取空闲时间 → 生成排班方案 → 保存结果 → 返回格式化排班表 | TODO |
+
+### 7.3 智能排班算法
+| 功能点 | 实现要求 | 状态 |
+|--------|---------|------|
+| 基础算法 | 实现贪心算法作为基础排班引擎 | TODO |
+| 优先策略 | 优先安排值日次数最少的学生 | TODO |
+| 闭馆排除 | 自动排除周三16:00-18:00时段 | TODO |
+| 提前上班支持 | 支持提前20分钟上班的特殊情况 | TODO |
+| 约束校验 | 生成的排班结果必须满足所有硬约束 | TODO |
+
+---
+
+## 8. Agent系统提示词规则（必须包含）
+```
+你是图书馆勤工助学智能排班系统的AI助手。请根据以下规则进行排班：
+
+【硬约束】
+1. 每个在职学生每周必须工作4次，每次连续2小时
+2. 允许提前20分钟上班，但不允许延后下班
+3. 同一学生不能在同一时段被安排多个工作
+4. 学生有课的时间段禁止排班
+5. 下节课有课的学生，当前时段只能提前20分钟下班
+6. 周三16:00-18:00闭馆，禁止安排工作
+7. 分时段人数规则：
+   - 工作日8:00-10:00、14:00-16:00：1-2人
+   - 其他时段：1人
+
+【软约束（尽量满足）】
+1. 公平性：平均分配晚班(20:00-22:00)
+2. 连续性：避免同一学生连续2天值晚班或早八班
+3. 合理性：同一学生1天最多安排1次值班
+
+请调用工具获取学生空闲时间，然后生成满足所有规则的排班方案。
+```
+
+---
+
+## 9. 项目结构规划
+```
+src/main/java/com/slim/agent/
+├── controller/          # REST API控制层
+│   ├── StudentController.java
+│   ├── ScheduleController.java
+│   └── OcrController.java
+├── service/             # 业务逻辑层
+│   ├── StudentService.java
+│   ├── ScheduleService.java
+│   ├── OcrService.java
+│   └── SchedulingAlgorithm.java  # 排班算法
+├── mapper/          # 数据访问层（MyBatis）
+│   ├── StudentMapper.java
+│   ├── StudentCourseMapper.java
+│   ├── ShiftConfigMapper.java
+│   └── DutyAssignmentMapper.java
+├── entity/              # POJO实体类
+│   ├── Student.java
+│   ├── StudentCourse.java
+│   ├── ShiftConfig.java
+│   └── DutyAssignment.java
+├── agent/               # AI Agent模块（核心亮点）
+│   ├── ScheduleAgent.java        # LangChain4j Agent定义
+│   └── ScheduleTools.java        # Function Calling工具类
+├── config/              # 配置类
+│   ├── LangChain4jConfig.java
+│   └── RapidOcrConfig.java
+├── dto/                 # 数据传输对象
+│   ├── request/
+│   └── response/
+└── LibrarySchedulingAgentApplication.java
+```
+
+---
+
+## 10. TODO开发任务清单
+
+### 第一阶段：基础设施搭建
+| # | 任务 | 状态 | 优先级 |
+|---|------|------|--------|
+| 1 | 创建POJO实体类（Student, StudentCourse, ShiftConfig, DutyAssignment） | ✅ | P0 |
+| 2 | 创建Mapper接口 | ✅ | P0 |
+| 3 | 配置MySQL数据源 | TODO | P0 |
+| 4 | 配置Redis缓存 | TODO | P1 |
+
+### 第二阶段：OCR识别模块
+| # | 任务 | 状态 | 优先级 |
+|---|------|------|--------|
+| 5 | 集成RapidOCR-Java依赖 | ✅ | - |
+| 6 | 实现OCR图片识别服务 | TODO | P1 |
+| 7 | 集成DeepSeek-R1:7b API | TODO | P1 |
+| 8 | 实现课表文本结构化解析 | TODO | P1 |
+| 9 | 实现空闲时间计算逻辑 | TODO | P1 |
+
+### 第三阶段：AI Agent模块（核心）
+| # | 任务 | 状态 | 优先级 |
+|---|------|------|--------|
+| 10 | 集成LangChain4j依赖 | ✅ | - |
+| 11 | 配置Ollama连接（DeepSeek-R1） | TODO | P0 |
+| 12 | 创建ScheduleTools工具类 | TODO | P0 |
+| 13 | 实现Function Calling Agent | TODO | P0 |
+| 14 | 编写系统提示词（包含所有业务规则） | TODO | P0 |
+
+### 第四阶段：排班算法模块
+| # | 任务 | 状态 | 优先级 |
+|---|------|------|--------|
+| 15 | 实现贪心算法排班引擎 | TODO | P0 |
+| 16 | 实现约束校验逻辑 | TODO | P0 |
+| 17 | 实现提前上班特殊情况处理 | TODO | P1 |
+
+### 第五阶段：API接口与测试
+| # | 任务 | 状态 | 优先级 |
+|---|------|------|--------|
+| 18 | 实现学生管理API | TODO | P1 |
+| 19 | 实现课表上传API | TODO | P1 |
+| 20 | 实现排班触发API | TODO | P0 |
+| 21 | 编写单元测试 | TODO | P2 |
+
+---
+
+## 11. 简历亮点总结
+> **项目亮点**：基于LangChain4j实现的智能排班AI Agent，具备完整的Function Calling能力。通过RapidOCR识别课表图片，调用DeepSeek大模型进行文本结构化，结合贪心算法实现满足复杂业务规则的自动排班系统。

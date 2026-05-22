@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.slim.agent.mapper.CoursePeriodMapper">
+
+    <resultMap id="BaseResultMap" type="com.slim.agent.entity.CoursePeriod">
+        <id column="id" property="id"/>
+        <result column="period_number" property="periodNumber"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, period_number, start_time, end_time, description
+    </sql>
+
+    <insert id="insert" parameterType="com.slim.agent.entity.CoursePeriod" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO course_periods (period_number, start_time, end_time, description)
+        VALUES (#{periodNumber}, #{startTime}, #{endTime}, #{description})
+    </insert>
+
+    <update id="updateById" parameterType="com.slim.agent.entity.CoursePeriod">
+        UPDATE course_periods
+        <set>
+            <if test="periodNumber != null">period_number = #{periodNumber},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM course_periods WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM course_periods WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM course_periods
+    </select>
+
+    <select id="selectByPeriodNumber" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM course_periods WHERE period_number = #{periodNumber}
+    </select>
+
+</mapper>
