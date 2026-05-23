@@ -4,5 +4,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OcrService {
-    // OCR recognition service
+
+    // TODO: 实现OCR识别逻辑
+
 }
