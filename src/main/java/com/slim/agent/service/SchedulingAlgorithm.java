@@ -3,14 +3,12 @@ package com.slim.agent.service;
 import com.slim.agent.dto.TimeSlot;
 import com.slim.agent.entity.*;
 import com.slim.agent.mapper.DutyAssignmentMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class SchedulingAlgorithm {
@@ -37,7 +35,7 @@ public class SchedulingAlgorithm {
         LocalDate startDate = getMondayOfWeek(weekNum);
         List<DutyAssignment> assignments = new ArrayList<>();
 
-        List<Student> activeStudents = getActiveStudents();
+        List<Student> activeStudents = studentService.getActiveStudents();
         Map<Long, Integer> shiftCountMap = initializeShiftCount(activeStudents, weekNum);
 
         for (int dayOffset = 0; dayOffset < 7; dayOffset++) {
@@ -73,16 +71,6 @@ public class SchedulingAlgorithm {
         return assignments;
     }
 
-    private List<Student> getActiveStudents() {
-        return studentService.getByStatus(1).stream()
-                .map(response -> {
-                    Student student = new Student();
-                    BeanUtils.copyProperties(response, student);
-                    return student;
-                })
-                .collect(Collectors.toList());
-    }
-
     private Map<Long, Integer> initializeShiftCount(List<Student> students, Integer weekNum) {
         Map<Long, Integer> countMap = new HashMap<>();
         for (Student student : students) {
@@ -98,7 +86,7 @@ public class SchedulingAlgorithm {
 
         List<Student> sortedStudents = students.stream()
                 .sorted(Comparator.comparingInt(s -> shiftCountMap.get(s.getId())))
-                .collect(Collectors.toList());
+                .toList();
 
         for (Student student : sortedStudents) {
             if (shiftCountMap.get(student.getId()) >= systemConfigService.getWeeklyShifts()) {

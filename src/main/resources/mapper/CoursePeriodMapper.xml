@@ -40,7 +40,7 @@
     </select>
 
     <select id="selectAll" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/> FROM course_periods
+        SELECT <include refid="Base_Column_List"/> FROM course_periods ORDER BY period_number
     </select>
 
     <select id="selectByPeriodNumber" resultMap="BaseResultMap">

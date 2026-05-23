@@ -7,7 +7,6 @@ import com.slim.agent.mapper.StudentMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,6 +58,10 @@ public class StudentService {
         return students.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public List<Student> getActiveStudents() {
+        return studentMapper.selectByStatus(1);
     }
 
     public StudentResponse getByStudentNo(String studentNo) {

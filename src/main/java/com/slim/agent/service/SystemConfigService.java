@@ -31,17 +31,29 @@ public class SystemConfigService {
 
     public Integer getWeeklyShifts() {
         String value = getConfigValue("weekly_shifts");
-        return value != null ? Integer.parseInt(value) : 4;
+        try {
+            return value != null ? Integer.parseInt(value) : 4;
+        } catch (NumberFormatException e) {
+            return 4;
+        }
     }
 
     public Integer getBufferMinutes() {
         String value = getConfigValue("buffer_minutes");
-        return value != null ? Integer.parseInt(value) : 20;
+        try {
+            return value != null ? Integer.parseInt(value) : 20;
+        } catch (NumberFormatException e) {
+            return 20;
+        }
     }
 
     public Integer getClosedWeekday() {
         String value = getConfigValue("closed_weekday");
-        return value != null ? Integer.parseInt(value) : 3;
+        try {
+            return value != null ? Integer.parseInt(value) : 3;
+        } catch (NumberFormatException e) {
+            return 3;
+        }
     }
 
     public String getClosedStartTime() {
